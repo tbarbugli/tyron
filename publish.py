@@ -4,12 +4,11 @@ import tyron
 def test():
     local('python setup.py sdist')
 
-def release():
-    version = tyron.__version__
+def publish(release):
     test()
-    local('git flow release finish %s' % version)
-    local('git checkout %s' % version)
+    local('git flow feature finish %s' % release)
+    local('git flow release start v%s' % tyron.__version__)
     local('rm -rf dist/')
     local('setup.py sdist upload')
-    local('git push origin :release/%s' % version)
-    local('git branch -d release/%s' % version)
+    local('git push origin :release/%s' % release)
+    local('git branch -d release/%s' % release)
