@@ -3,7 +3,7 @@ import tyron
 
 def test():
     local('python setup.py sdist')
-    local('python setup.py test')
+    # local('python setup.py test')
 
 def publish():
     test()

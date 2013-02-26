@@ -42,9 +42,9 @@ Install
 =======
 
 Just do pip install tyron or do a setup.py install
+Installing gevent has some dependencies pip cant take care of (eg.. on ubuntu-alike python-dev, libevent, gcc, libevent-dev), you better have a look at gevent install instructions if you run into troubles.
 
 Note: If you are using OSX you might need something like this:
-
 `CFLAGS="-I /opt/local/include -L /opt/local/lib" pip install tyron`
 
 Settings
@@ -112,7 +112,7 @@ I personally like the semplicity of green unicorn:
 
 `
 pip install gunicorn
-gunicorn -b :8091 -w 9 -k gevent --worker-connections=2000 tyron --log-level=critical
+gunicorn -b :8091 -w 9 -k gevent --worker-connections=2000 tyron.tyron --log-level=critical
 `   
 
 few notes about chosen parameters:

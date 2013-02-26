@@ -9,6 +9,7 @@ from flask import Flask
 import gevent
 from gevent import monkey
 from gevent.queue import Channel
+from gevent.queue import Empty
 import os
 import logging
 import redis
@@ -75,7 +76,7 @@ def subscribe(channel):
     timeout = application.config['LONGPOLLING_TIMEOUT']
     try:
         message = subscriptions[channel].get(timeout=timeout)
-    except Timeout:
+    except Empty:
         message = application.config['TIMEOUT_RESPONSE_MESSAGE']
     return message
 
