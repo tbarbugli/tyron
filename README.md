@@ -1,5 +1,8 @@
 Tyron
 ======
+
+[![Build Status](https://travis-ci.org/[tbarbugli]/[tyron].png)](https://travis-ci.org/[tbarbugli]/[tyron])
+
 Tyron is a web app to send push events to connected clients
 
 A client connects to tyron and subscribes to a specific channel,
