@@ -1,13 +1,15 @@
 from setuptools import find_packages
 from setuptools import setup
 
+import tyron
+
 description="""
 Gevent redis/pubsub event notifier written in flask and gevent
 """
 
 setup(
     name="tyron",
-    version='0.0.2',
+    version=tyron.__version__,
     url='https://github.com/tbarbugli/tyron',
     license='BSD',
     platforms=['OS Independent'],
