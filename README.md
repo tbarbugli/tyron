@@ -16,7 +16,7 @@ The messaging backend utilises the redis pub/sub feature.
 
 Subscribe to channels
 ====================
-Clients subscribes to channel using the /<channel>/ entry point
+Clients subscribes to channel using the /\<channel\>/ entry point
 
 Publish to clients
 ==================
