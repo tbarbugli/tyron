@@ -90,5 +90,8 @@ def start_subscribe_loop():
     )
     gevent.spawn(pubsub.start)
 
-if __name__ == '__main__':
+def main():
     application.run()
+
+if __name__ == '__main__':
+    main()
