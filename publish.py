@@ -3,8 +3,9 @@ import tyron
 
 def test():
     local('python setup.py sdist')
+    local('python setup.py test')
 
-def publish(release):
+def publish():
     test()
     local('rm -rf dist/')
     local('python setup.py sdist upload')
