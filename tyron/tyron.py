@@ -18,9 +18,12 @@ monkey.patch_all()
 
 application = Flask(__name__)
 application.config.from_object('tyron.default_settings')
+
 if 'TYRON_CONF' in os.environ:
     application.config.from_envvar('TYRON_CONF')
+
 application.logger.setLevel(application.config['LOG_LEVEL'])
+logger = logging.getLogger(__name__)
 
 subscriptions = defaultdict(Channel)
 
@@ -45,15 +48,22 @@ class RedisSub(gevent.Greenlet):
     def get_redis_connection(self):
         return redis.Redis(self.redis_hostname, self.redis_port, self.redis_db, self.redis_password)
 
+    def decode_message(self, message):
+        return json.loads(message)
+
     def parse_message(self, message):
-        msg = json.loads(message)
+        msg = self.decode_message(message)
         return msg['channel'], msg['data']
 
     def handle_message(self, message):
-        channel, data = self.parse_message(message)
-        gevent_channel = subscriptions[channel]
-        while gevent_channel.getters:
-            gevent_channel.put_nowait(data)
+        try:
+            channel, data = self.parse_message(message)
+        except:
+            logger.exception('unable to parse the message %r' % message)
+        else:
+            gevent_channel = subscriptions[channel]
+            while gevent_channel.getters:
+                gevent_channel.put_nowait(data)
 
     def subscribe(self):
         connection = self.get_redis_connection()

@@ -1,3 +1,5 @@
+from functools import partial
+import gevent
 import json
 import mock
 import redis
@@ -7,12 +9,20 @@ from mock import patch
 import unittest
 from tyron.tyron import subscriptions
 from tyron.tyron import RedisSub
+from tyron.tyron import subscriptions
 
 redis_pubsub = RedisSub('channel', 'localhost', 6379, 1)
+pubsub_channel = []
+
+def pubsub_stream(*args):
+    return (m for m in pubsub_channel)
 
 class TestRedisPubSub(unittest.TestCase):
 
-    @patch.object(PubSub, 'listen')
+    def tearDown(self):
+        pubsub_channel[:] = []
+
+    @patch.object(PubSub, 'listen', pubsub_stream)
     @patch.object(PubSub, 'execute_command')
     def test_subscribes_to_redis(self, pubsub_exec, *args):
         redis_pubsub.subscribe()
@@ -36,8 +46,28 @@ class TestRedisPubSub(unittest.TestCase):
         r_message = redis_pubsub.parse_message(encoded_message)
         assert 'channelname', 'data' == r_message
 
-    def test_redis_config(self):
-        pass
+    @patch.object(PubSub, 'listen', pubsub_stream)
+    @patch.object(PubSub, 'execute_command')
+    def test_message_faulty_parsing_handling(self, pubsub_exec, *args):
 
-    def test_timeout(self):
-        pass
+        def subscriber(channel):
+            return subscriptions[channel].get(timeout=3)
+
+        getter = gevent.spawn(partial(subscriber, 'answer_to_everything'))
+
+        bad_payload = {
+            'type': 'message',
+            'data': '{s"this is not json loadable}',
+        }
+        bad_format = {
+            'type': 'message',
+            'data': '{"data": "41"}',
+        }
+        good_payload = {
+            'type': 'message',
+            'data': '{"data": "42", "channel": "answer_to_everything"}',
+        }
+        pubsub_channel[:] = [bad_payload, good_payload, bad_format]
+        setter = gevent.spawn(redis_pubsub.subscribe)
+        gevent.joinall([getter, setter])
+        assert getter.value == "42"
