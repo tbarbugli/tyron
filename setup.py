@@ -26,14 +26,15 @@ setup(
     dependency_links = [
         'https://github.com/downloads/SiteSupport/gevent/gevent-1.0rc2.tar.gz#egg=gevent'
     ],
-    requires = [
-        'Flask (==0.9)',
-        'Jinja2 (==2.6)',
-        'Werkzeug (==0.8.3)',
-        'greenlet (==0.4.0)',
-        'gunicorn (==0.17.2)',
-        'redis (==2.7.2)',
-        'ujson (==1.30)',
+    install_requires = [
+        'Flask==0.9',
+        'Jinja2==2.6',
+        'Werkzeug==0.8.3',
+        'greenlet==0.4.0',
+        'gunicorn==0.17.2',
+        'redis==2.7.2',
+        'ujson==1.30',
+        'gevent==1.0rc2'
     ],
     entry_points={
         'console_scripts': [
