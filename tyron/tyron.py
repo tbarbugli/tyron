@@ -13,6 +13,8 @@ from gevent.queue import Empty
 import os
 import logging
 import redis
+from .utils import crossdomain
+
 
 monkey.patch_all()
 
@@ -82,6 +84,7 @@ def health():
     return 'OK'
 
 @application.route('/<channel>/', methods=('GET', 'POST', 'OPTIONS'))
+@crossdomain(origin='*')
 def subscribe(channel):
     timeout = application.config['LONGPOLLING_TIMEOUT']
     try:

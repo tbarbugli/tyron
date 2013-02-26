@@ -7,7 +7,7 @@ Tyron is a web app for events pushing.
 
 It is written in python and developed as a Flask application.
 
-** Gevent is required to run Tyron **
+**Gevent is required to run Tyron**
 
 The messaging backend utilises the redis pub/sub feature.
 
