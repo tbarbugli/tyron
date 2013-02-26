@@ -9,3 +9,5 @@ def publish():
     test()
     local('rm -rf dist/')
     local('python setup.py sdist upload')
+    local('git tag v%s' % tyron.__version__)
+    local('git push --tags')

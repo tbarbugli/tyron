@@ -3,31 +3,34 @@ Tyron
 
 [![Build Status](https://travis-ci.org/tbarbugli/tyron.png?cache=0)](https://travis-ci.org/tbarbugli/tyron)
 
-Tyron is a web app to send push events to connected clients
+Tyron is a web app for events pushing.
 
-A client connects to tyron and subscribes to a specific channel,
-tyron will keep the http connection open until something get published
-to that channel.
+It is written in python and developed as a Flask application.
 
-To keep the connection count as little as possible open connection will
-timeout after a configurable interval of time.
+** Gevent is required to run Tyron **
 
 The messaging backend utilises the redis pub/sub feature.
+
 
 Subscribe to channels
 ====================
 Clients subscribes to channel using the /<channel>/ entry point
 
+To keep the connection count as little as possible connections will
+be closed after a configurable interval of time, a predefined response body
+will be sent to the client.
+
+
 Publish to clients
 ==================
-To publish to a client you need to connect to redis and publish
+In order to publish messages you need to connect to redis and publish
 on the channel tyron subscribes (see CHANNEL_NAME setting)
 
-NOTE: The user channel is part of the message you publish to redis
+NOTE: The user channel is part of the message you publish to redis (see message format)
 
 Message format
 ==============
-Messages must follow this json format:
+Messages published on redis must follow this json format:
 
 `{"channel": "user_channel", "data": "...."}`
 
