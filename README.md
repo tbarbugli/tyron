@@ -14,7 +14,7 @@ The messaging backend utilises the redis pub/sub feature.
 
 Subscribe to channels
 ====================
-Clients subscribes to channel using the /<channel>/ entry point
+Clients subscribes to channel using the /\<channel\>/ entry point
 
 To keep the connection count as little as possible connections will
 be closed after a configurable interval of time, a predefined response body
