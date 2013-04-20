@@ -49,3 +49,9 @@ def crossdomain(origin=None, methods=None, headers=None,
         f.provide_automatic_options = False
         return update_wrapper(wrapped_function, f)
     return decorator
+
+def load_plugin(plugin_path):
+    lastdot = method.rfind('.')
+    module, attrname = method[:lastdot], method[lastdot + 1:]
+    plugin = getattr(__import__(module, {}, {}, [attrname]), attrname)
+    return plugin
