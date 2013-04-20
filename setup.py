@@ -24,7 +24,7 @@ setup(
     ],
     test_suite='tests',
     dependency_links = [
-        'https://github.com/downloads/SiteSupport/gevent/gevent-1.0rc2.tar.gz#egg=gevent-1.0.rc2'
+        'https://gevent.googlecode.com/files/gevent-1.0rc2.tar.gz#egg=gevent-1.0.rc2'
     ],
     install_requires = [
         'Flask==0.9',
