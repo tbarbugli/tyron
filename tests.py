@@ -3,11 +3,14 @@ import gevent
 import json
 from redis.client import PubSub
 from mock import patch
-import unittest
 from tyron.tyron import application
 from tyron.tyron import subscriptions
 from tyron.tyron import RedisSub
 
+try:
+    import unittest2 as unittest
+except ImportError:
+    import unittest
 
 redis_pubsub = RedisSub('channel', 'localhost', 6379, 1)
 pubsub_channel = []

@@ -20,6 +20,7 @@ setup(
     maintainer_email = 'tbarbugli@gmail.com',
     packages=find_packages(),
     tests_require=[
+        'unittest2',
         'mock',
     ],
     test_suite='tests',
