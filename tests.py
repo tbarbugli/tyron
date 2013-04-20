@@ -1,15 +1,13 @@
 from functools import partial
 import gevent
 import json
-import mock
-import redis
 from redis.client import PubSub
-from mock import MagicMock
 from mock import patch
 import unittest
+from tyron.tyron import application
 from tyron.tyron import subscriptions
 from tyron.tyron import RedisSub
-from tyron.tyron import subscriptions
+
 
 redis_pubsub = RedisSub('channel', 'localhost', 6379, 1)
 pubsub_channel = []
@@ -71,3 +69,13 @@ class TestRedisPubSub(unittest.TestCase):
         setter = gevent.spawn(redis_pubsub.subscribe)
         gevent.joinall([getter, setter])
         assert getter.value == "42"
+
+class TestHealthPlugin(unittest.TestCase):
+
+    def test_registered_ext_health(self):
+        self.assertIn('health_check', application.blueprints)
+
+    def test_url_ext_health(self):
+        client = application.test_client()
+        response = client.get('/health/')
+        self.assertEqual(response.status_code, 200)

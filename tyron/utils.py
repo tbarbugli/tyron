@@ -51,7 +51,7 @@ def crossdomain(origin=None, methods=None, headers=None,
     return decorator
 
 def load_plugin(plugin_path):
-    lastdot = method.rfind('.')
-    module, attrname = method[:lastdot], method[lastdot + 1:]
+    lastdot = plugin_path.rfind('.')
+    module, attrname = plugin_path[:lastdot], plugin_path[lastdot + 1:]
     plugin = getattr(__import__(module, {}, {}, [attrname]), attrname)
     return plugin
