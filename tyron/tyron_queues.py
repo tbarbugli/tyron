@@ -7,33 +7,47 @@ except ImportError:
 
 from flask import Flask
 import gevent
-from gevent import monkey
-from gevent.queue import Channel
-from gevent.queue import Empty
+from gevent import queue
 import os
 import logging
 import redis
-from .utils import crossdomain
-from .utils import load_plugin
 
-
-monkey.patch_all()
 
 application = Flask(__name__)
 application.config.from_object('tyron.default_settings')
-
 if 'TYRON_CONF' in os.environ:
     application.config.from_envvar('TYRON_CONF')
-
 application.logger.setLevel(application.config['LOG_LEVEL'])
-logger = logging.getLogger(__name__)
 
-for plugin_path in application.config['EXTENSIONS']:
-    logger.info('registering extension %s ...' % plugin_path)
-    plugin = load_plugin(plugin_path)
-    application.register_blueprint(plugin)
+# class SubscriptionList(object):
 
-subscriptions = defaultdict(Channel)
+#     def __init__(self):
+#         self.subscriptions = defaultdict(set)
+
+#     def add(self, client, channel):
+#         self.subscriptions[channel].add(client)
+
+#     def remove(self, client, channel):
+#         """
+#         removes the client from subscriptions
+
+#         """
+#         if client in self.subscriptions[channel]:
+#             self.subscriptions[channel].remove(client)
+#         if len(self.subscriptions[channel]) == 0:
+#             del self.subscriptions['channel']
+
+#     def emit(self, channel, data):
+#         for subscription in self.subscriptions[channel]:
+#             subscription.queue.put_nowait(data)
+
+# class Client(object):
+#     def __init__(self):
+#         self.queue = queue.Queue()
+
+# subscriptions = SubscriptionList()
+
+subscriptions = defaultdict(queue.Queue)
 
 class RedisSub(gevent.Greenlet):
     """
@@ -56,22 +70,13 @@ class RedisSub(gevent.Greenlet):
     def get_redis_connection(self):
         return redis.Redis(self.redis_hostname, self.redis_port, self.redis_db, self.redis_password)
 
-    def decode_message(self, message):
-        return json.loads(message)
-
     def parse_message(self, message):
-        msg = self.decode_message(message)
+        msg = json.loads(message)
         return msg['channel'], msg['data']
 
     def handle_message(self, message):
-        try:
-            channel, data = self.parse_message(message)
-        except:
-            logger.exception('unable to parse the message %r' % message)
-        else:
-            gevent_channel = subscriptions[channel]
-            while gevent_channel.getters:
-                gevent_channel.put_nowait(data)
+        channel, data = self.parse_message(message)
+        subscriptions.emit(channel, data)
 
     def subscribe(self):
         connection = self.get_redis_connection()
@@ -85,19 +90,24 @@ class RedisSub(gevent.Greenlet):
     def _run(self):
         self.subscribe()
 
-@application.route('/<channel>/', methods=('GET', 'POST', 'OPTIONS'))
-@crossdomain(origin='*')
+@application.route('/')
+def health():
+    return 'OK'
+
+@application.route('/<channel>/')
 def subscribe(channel):
+    # client = Client()
+    # subscriptions.add(client, channel)
     timeout = application.config['LONGPOLLING_TIMEOUT']
     try:
+        # message = client.queue.get(timeout=timeout)
         message = subscriptions[channel].get(timeout=timeout)
-    except Empty:
+    except queue.Empty:
         message = application.config['TIMEOUT_RESPONSE_MESSAGE']
-    finally:
-        del subscriptions[channel]
+    # finally:
+        # subscriptions.remove(client, channel)
     return message
 
-@application.before_first_request
 def start_subscribe_loop():
     pubsub = RedisSub(
         pubsub_channel=application.config['CHANNEL_NAME'],
@@ -108,6 +118,7 @@ def start_subscribe_loop():
     gevent.spawn(pubsub.start)
 
 def main():
+    start_subscribe_loop()
     application.run()
 
 if __name__ == '__main__':
