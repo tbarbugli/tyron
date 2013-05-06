@@ -39,7 +39,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'tyron = tyron:main',
+            'tyron = tyron.tyron:main',
         ],
     },
     classifiers=[
