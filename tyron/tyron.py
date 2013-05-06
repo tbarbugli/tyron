@@ -86,7 +86,7 @@ class RedisSub(gevent.Greenlet):
         self.subscribe()
 
 @application.route('/favicon.ico/')
-def subscribe(channel):
+def favicon():
     return ''
 
 @application.route('/<channel>/', methods=('GET', 'POST', 'OPTIONS'))
