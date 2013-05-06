@@ -85,6 +85,10 @@ class RedisSub(gevent.Greenlet):
     def _run(self):
         self.subscribe()
 
+@application.route('/favicon.ico/')
+def subscribe(channel):
+    return ''
+
 @application.route('/<channel>/', methods=('GET', 'POST', 'OPTIONS'))
 @crossdomain(origin='*')
 def subscribe(channel):
