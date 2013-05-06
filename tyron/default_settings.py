@@ -9,4 +9,7 @@ REDIS_PORT = 6379
 REDIS_DB = 0
 HTTP_PORT = 8080
 LOG_LEVEL = logging.INFO
-EXTENSIONS = ['tyron.ext.health.health_check']
+EXTENSIONS = [
+    'tyron.ext.health.health_check',
+    'tyron.ext.redis_store.redis_store'
+]
