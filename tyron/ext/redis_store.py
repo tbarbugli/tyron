@@ -1,9 +1,12 @@
 from flask import Blueprint
 import redis
+from tyron.utils import crossdomain
+
 
 redis_store = Blueprint('redis_store', __name__)
 
-@redis_store.route('/store/<key>/', methods=('GET',))
+@redis_store.route('/store/<key>/', methods=('GET', 'POST'))
+@crossdomain(origin='*')
 def store(key):
     from tyron.tyron import application
     client = redis.Redis(
