@@ -106,7 +106,7 @@ def start_subscribe_loop():
 
 def main():
     from gevent.wsgi import WSGIServer
-    WSGIServer(('', 5000), application).serve_forever()
+    WSGIServer(('', 8080), application).serve_forever()
 
 if __name__ == '__main__':
     main()
