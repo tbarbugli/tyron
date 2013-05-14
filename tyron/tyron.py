@@ -1,15 +1,10 @@
 from collections import defaultdict
-
-try:
-    import ujson as json
-except ImportError:
-    import json
-
+import json
 from flask import Flask
 import gevent
+from gevent.event import AsyncResult
+from gevent.timeout import Timeout
 from gevent import monkey
-from gevent.queue import Channel
-from gevent.queue import Empty
 import os
 import logging
 import redis
@@ -33,7 +28,7 @@ for plugin_path in application.config['EXTENSIONS']:
     plugin = load_plugin(plugin_path)
     application.register_blueprint(plugin)
 
-subscriptions = defaultdict(Channel)
+subscriptions = defaultdict(AsyncResult)
 
 class RedisSub(gevent.Greenlet):
     """
@@ -69,9 +64,9 @@ class RedisSub(gevent.Greenlet):
         except:
             logger.exception('unable to parse the message %r' % message)
         else:
-            gevent_channel = subscriptions[channel]
-            while gevent_channel.getters:
-                gevent_channel.put_nowait(data)
+            async_result = subscriptions[channel]
+            async_result.set(data)
+            del subscriptions[channel]
 
     def subscribe(self):
         connection = self.get_redis_connection()
@@ -95,10 +90,8 @@ def subscribe(channel):
     timeout = application.config['LONGPOLLING_TIMEOUT']
     try:
         message = subscriptions[channel].get(timeout=timeout)
-    except Empty:
+    except Timeout:
         message = application.config['TIMEOUT_RESPONSE_MESSAGE']
-    finally:
-        del subscriptions[channel]
     return message
 
 @application.before_first_request
@@ -112,7 +105,8 @@ def start_subscribe_loop():
     gevent.spawn(pubsub.start)
 
 def main():
-    application.run()
+    from gevent.wsgi import WSGIServer
+    WSGIServer(('', 5000), application).serve_forever()
 
 if __name__ == '__main__':
     main()

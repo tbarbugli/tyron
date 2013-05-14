@@ -34,7 +34,6 @@ setup(
         'greenlet==0.4.0',
         'gunicorn==0.17.2',
         'redis==2.7.2',
-        'ujson==1.30',
         'gevent >= 1.0rc2'
     ],
     entry_points={
