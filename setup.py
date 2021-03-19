@@ -29,7 +29,7 @@ setup(
     ],
     install_requires = [
         'Flask==0.9',
-        'Jinja2==2.6',
+        'Jinja2==2.11.3',
         'Werkzeug==0.8.3',
         'greenlet==0.4.0',
         'gunicorn==0.17.2',
